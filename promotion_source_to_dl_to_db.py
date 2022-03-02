@@ -15,13 +15,13 @@ default_args = {
     "retry_delay": timedelta(minutes=5)
 }
 
-with DAG("promotion_source_to_dl_to_db", schedule_interval="@once", default_args=default_args, catchup=False) as dag:
+with DAG("promotion_source_to_dl_to_db", schedule_interval="@daily", default_args=default_args, catchup=True) as dag:
 	task_1 = SparkSubmitOperator(
 		task_id = "task_1",
 		application= "/mnt/c/airflow/jars/mockproject_2.12-0.1.jar",
 		conn_id = "spark_conn_local",
 		java_class="markettingtask.PromotionDataSourceToDL",
-		# application_args = [str({{ macros.ds_add(ds, -1) }})] ## or some random day watev
+		application_args = ["{{ macros.ds_add(ds, -1) }}"] ## or some random day watev
 	)
 
 
@@ -30,7 +30,7 @@ with DAG("promotion_source_to_dl_to_db", schedule_interval="@once", default_args
 		application= "/mnt/c/airflow/jars/mockproject_2.12-0.1.jar",
 		conn_id = "spark_conn_local",
 		java_class="markettingtask.PromotionDataDLToDB",
-		# application_args = [str({{ macros.ds_add(ds, -1) }})] ## or some random day watev
+		application_args = ["{{ macros.ds_add(ds, -1) }}"] ## or some random day watev
 	)
 
 	# task_2 = BashOperator(
